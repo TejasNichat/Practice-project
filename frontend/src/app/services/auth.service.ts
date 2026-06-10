@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface LoginResponse {
   token: string;
@@ -25,6 +26,7 @@ export interface User {
 })
 export class AuthService {
   private apiUrl = 'http://localhost:5000/api/auth';
+  private platformId = inject(PLATFORM_ID);
   private userSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
   public user$ = this.userSubject.asObservable();
 
@@ -34,8 +36,10 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password })
       .pipe(
         tap(response => {
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('user', JSON.stringify(response.user));
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('user', JSON.stringify(response.user));
+          }
           this.userSubject.next(response.user);
         })
       );
@@ -45,21 +49,28 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/register`, { username, email, password, role })
       .pipe(
         tap(response => {
-          localStorage.setItem('token', response.token);
-          localStorage.setItem('user', JSON.stringify(response.user));
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('user', JSON.stringify(response.user));
+          }
           this.userSubject.next(response.user);
         })
       );
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
     this.userSubject.next(null);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('token');
+    }
+    return null;
   }
 
   isLoggedIn(): boolean {
@@ -71,7 +82,10 @@ export class AuthService {
   }
 
   private getUserFromStorage(): User | null {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+    if (isPlatformBrowser(this.platformId)) {
+      const userStr = localStorage.getItem('user');
+      return userStr ? JSON.parse(userStr) : null;
+    }
+    return null;
   }
 }

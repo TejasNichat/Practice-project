@@ -11,8 +11,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
+// MongoDB Connection Options (fixes Windows SSL issues)
+const mongooseOptions = {
+  ssl: true,
+  retryWrites: true,
+  w: 'majority',
+};
+
+mongoose.connect(process.env.MONGODB_URI, mongooseOptions)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB connection error:', err));
 
