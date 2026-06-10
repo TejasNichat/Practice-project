@@ -12,6 +12,11 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB Connection Options (fixes Windows SSL issues)
+// const mongooseOptions = {
+//   ssl: true,
+//   retryWrites: true,
+//   w: 'majority',
+// };
 const mongooseOptions = {
   ssl: true,
   retryWrites: true,
