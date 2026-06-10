@@ -37,8 +37,8 @@ export class AuthService {
       .pipe(
         tap(response => {
           if (isPlatformBrowser(this.platformId)) {
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('user', JSON.stringify(response.user));
+            sessionStorage.setItem('token', response.token);
+            sessionStorage.setItem('user', JSON.stringify(response.user));
           }
           this.userSubject.next(response.user);
         })
@@ -50,8 +50,8 @@ export class AuthService {
       .pipe(
         tap(response => {
           if (isPlatformBrowser(this.platformId)) {
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('user', JSON.stringify(response.user));
+            sessionStorage.setItem('token', response.token);
+            sessionStorage.setItem('user', JSON.stringify(response.user));
           }
           this.userSubject.next(response.user);
         })
@@ -60,15 +60,15 @@ export class AuthService {
 
   logout(): void {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
     }
     this.userSubject.next(null);
   }
 
   getToken(): string | null {
     if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('token');
+      return sessionStorage.getItem('token');
     }
     return null;
   }
@@ -83,7 +83,7 @@ export class AuthService {
 
   private getUserFromStorage(): User | null {
     if (isPlatformBrowser(this.platformId)) {
-      const userStr = localStorage.getItem('user');
+      const userStr = sessionStorage.getItem('user');
       return userStr ? JSON.parse(userStr) : null;
     }
     return null;
